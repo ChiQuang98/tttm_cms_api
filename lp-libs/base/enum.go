@@ -1,0 +1,130 @@
+package base
+
+const (
+	OPU_GENERIC byte = 0x82
+	OPU_CAMERA  byte = 0x83
+	OPU_PHONE   byte = 0x84
+	OPU_STATUS  byte = 0x85
+	OPU_MEDIA   byte = 0x86
+
+	OPU_MEDIA_SYNC  byte = 0x91
+	OPU_MEDIA_EVENT byte = 0x93
+
+	OPU_SENSOR byte = 0xA1
+	OPU_ALARM  byte = 0xA2
+
+	OPU_LOG      byte = 0xB1
+	OPU_TIME_GET byte = 0xC1
+)
+
+const (
+	MCU_DISCONNECTED  byte = 0
+	MCU_CONNECTED     byte = 1
+	MCU_LOG_REBOOT    byte = 8
+	MCU_LOG_CONNECTED byte = 9
+)
+
+const (
+	LOG_RECORD_CREATE = 1
+	LOG_RECORD_EDIT   = 2
+	LOG_RECORD_PLAY   = 3
+	LOG_RECORD_DELETE = 4
+
+	LOG_NEW_EVENT = 5
+
+	LOG_SENSOR_STATUS_CHANGE = 6
+
+	LOG_RECORD_DOWNLOAD_ERR = 7
+
+	LOG_MGW_REBOOT       = 8
+	LOG_MGW_CONNECTED    = 9
+	LOG_MGW_DISCONNECTED = 10
+	LOG_TCP_STACK_ERROR  = 17
+
+	LOG_FILE_ERROR = 11
+
+	LOG_STOP_RECORD         = 12
+	LOG_ADD_FM_TO_PLAY_LIST = 13
+	LOG_AUTO_PLAY_FM        = 14
+	LOG_STOP_RECORD_EXPIRE  = 15
+	LOG_MQTT_PACKAGE        = 16
+
+	LOG_LIVE_STREAM_START = 20
+	LOG_LIVE_STREAM_END   = 21
+)
+
+const (
+	LP_CMS_CLIENT string = "lp-cms-client"
+	LP_MCU_API    string = "lp-mcu-api"
+)
+
+const (
+	OPH_VERIFY       byte = 0x01
+	OPH_SYNC         byte = 0x02
+	OPH_GROUP_UPDATE byte = 0x03
+
+	OPH_MEDIA_UPDATE byte = 0x011
+	OPH_MEDIA_DATA   byte = 0x012
+	OPH_MEDIA_DELETE byte = 0x013
+	OPH_MEDIA_VOLUME byte = 0x014
+	OPH_MEDIA_EDIT   byte = 0x015
+	OPH_MEDIA_HEADER byte = 0x016
+	OPH_HEADER_PLAY  byte = 0x017
+	OPH_LIVE_STREAM  byte = 0x018
+
+	OPH_MEDIA_CHUNK byte = 0x19
+	OPH_FM_UPDATE   byte = 0x1a
+	OPH_FM_CONFIG   byte = 0x1b
+
+	OPH_SENSOR_CONFIG byte = 0x21
+	OPH_EVENT_CONFIG  byte = 0x22
+
+	OPH_UDF    byte = 0x30
+	OPH_TIME   byte = 0x31
+	OPH_REBOOT byte = 0x32
+
+	OPH_MEDIA_UPDATE_2 byte = 0x41
+	OPH_MEDIA_DATA_2   byte = 0x42
+	OPH_MEDIA_EDIT_2   byte = 0x45
+	OPH_MEDIA_EDIT_3   byte = 0x43
+	OPH_FM_UPDATE_2    byte = 0x4a
+)
+
+const (
+	RECEIPT_TYPE_GROUP = 1
+	RECEIPT_TYPE_MCU   = 2
+
+	PLAY_REAPEAT_WEEK  = 0
+	PLAY_REAPEAT_MONTH = 1
+
+	PLAY_MODE_NOTPLAY     = 0
+	PLAY_MODE_SCHEDULE    = 1
+	PLAY_MODE_IMMEDIATELY = 2
+
+	CODEC_PCM_16BIT_8KHZ = 0
+	CODEC_G711_ALAW      = 1
+	CODEC_G726           = 2
+	CODEC_OPUS           = 3
+
+	LIVE_STREAM      = 0
+	STOP_LIVE_STREAM = 1
+)
+
+const (
+	AUDIO_FORMAT_RAW byte = 0
+	AUDIO_FORMAT_WAV byte = 1
+	AUDIO_FORMAT_OGG byte = 2
+)
+const (
+	PUSH_DELETE_CONTROL byte = 0x87
+	PUSH_VOLUME byte = 0x88
+	PUSH_ADD_RECORD byte = 0x89
+	PUSH_Load_MCU_DATA byte = 0x90
+	PUSH_VERIFY_VCODE byte = 0x91
+	PUSH_SET_CMSGROUP byte = 0x92
+	PUSH_REBOOT byte = 0x93
+	PUSH_EDIT_RECORD byte = 0x94
+	PUSH_DELETE_RECORD byte = 0x95
+	PUSH_UPDATE_RECORD byte = 0x96
+
+)
