@@ -19,10 +19,10 @@ func ConvertJsonToSenML(mcu_id int64, obj interface{}, op_code byte,topicLogMain
 		var generic *base.OPUGeneric = obj.(*base.OPUGeneric)
 		volumn := float64(generic.Volume)
 		list := []senml.Measurement{
-			senml.NewValue(strconv.FormatInt(mcu_id, 10)+"_volume", volumn, senml.Decibel, now, 0),
+			senml.NewValue("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_volume", volumn, senml.Decibel, now, 0),
 		}
 		rs,_:=json.Marshal(generic)
-		list = append(list, senml.NewString(strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC",string(rs), "GENERIC", now, 0))
+		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC",string(rs), "GENERIC", now, 0))
 
 		//fmt.Print(len(list))
 		fmt.Println("jsonGeneric",string(rs))
@@ -48,7 +48,7 @@ func ConvertJsonToSenML(mcu_id int64, obj interface{}, op_code byte,topicLogMain
 		fmt.Println(len(cameras))
 		list := []senml.Measurement{}
 		rs,_:=json.Marshal(cameras)
-		list = append(list, senml.NewString(strconv.FormatInt(mcu_id, 10)+"_OPU_CAMERA",string(rs), "CAMERA", now, 0))
+		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_CAMERA",string(rs), "CAMERA", now, 0))
 		data, err := senml.EncodeJSON(list)
 		if err != nil {
 			fmt.Print("Error encoding to JSON:", err)
@@ -68,7 +68,7 @@ func ConvertJsonToSenML(mcu_id int64, obj interface{}, op_code byte,topicLogMain
 		fmt.Println(len(phone))
 		list := []senml.Measurement{}
 		rs,_:=json.Marshal(phone)
-		list = append(list, senml.NewString(strconv.FormatInt(mcu_id, 10)+"_OPU_PHONE",string(rs), "PHONE", now, 0))
+		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_PHONE",string(rs), "PHONE", now, 0))
 		data, err := senml.EncodeJSON(list)
 		if err != nil {
 			fmt.Print("Error encoding to JSON:", err)
@@ -91,12 +91,12 @@ func ConvertJsonToSenML(mcu_id int64, obj interface{}, op_code byte,topicLogMain
 			fmt.Print("CreateTime", createTime)
 			/*McuID+typeSensor+sensorID*/
 			/*SensorName+typeSensor+sensorID*/
-			nameSensor := strconv.FormatInt(mcu_id, 10) + "_" + sensor.Name + "_" + strconv.FormatInt(sensor.SensorId, 10)
+			nameSensor := "TTTM_"+strconv.FormatInt(mcu_id, 10) + "_" + sensor.Name + "_" + strconv.FormatInt(sensor.SensorId, 10)
 			list = append(list, senml.NewValue(nameSensor,
 				float64(sensor.Value), "ValueSensor", createTime, 0))
 		}
 		rs,_:=json.Marshal(sensors)
-		list = append(list, senml.NewString(strconv.FormatInt(mcu_id, 10)+"_OPU_SENSOR",string(rs), "SENSOR", now, 0))
+		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_SENSOR",string(rs), "SENSOR", now, 0))
 		data, err := senml.EncodeJSON(list)
 		if err != nil {
 			fmt.Print("Error encoding to JSON:", err)
@@ -115,7 +115,7 @@ func ConvertJsonToSenML(mcu_id int64, obj interface{}, op_code byte,topicLogMain
 		fmt.Println(len(alarms))
 		list := []senml.Measurement{}
 		rs,_:=json.Marshal(alarms)
-		list = append(list, senml.NewString(strconv.FormatInt(mcu_id, 10)+"_OPU_ALARM",string(rs), "ALARM", now, 0))
+		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_ALARM",string(rs), "ALARM", now, 0))
 		data, err := senml.EncodeJSON(list)
 		if err != nil {
 			fmt.Print("Error encoding to JSON:", err)
@@ -134,7 +134,7 @@ func ConvertJsonToSenML(mcu_id int64, obj interface{}, op_code byte,topicLogMain
 		fmt.Println(len(items))
 		list := []senml.Measurement{}
 		rs,_:=json.Marshal(items)
-		list = append(list, senml.NewString(strconv.FormatInt(mcu_id, 10)+"_OPU_MEDIA",string(rs), "MEDIA", now, 0))
+		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_MEDIA",string(rs), "MEDIA", now, 0))
 		data, err := senml.EncodeJSON(list)
 		if err != nil {
 			fmt.Print("Error encoding to JSON:", err)
@@ -151,9 +151,9 @@ func ConvertJsonToSenML(mcu_id int64, obj interface{}, op_code byte,topicLogMain
 		fmt.Println("In OPUT_STATUS")
 		var status base.OPUStatus = obj.(base.OPUStatus)
 		list := []senml.Measurement{}
-		list = append(list, senml.NewValue(strconv.FormatInt(mcu_id, 10)+"_Temp", float64(status.Temp), senml.Degree, now, 0))
+		list = append(list, senml.NewValue("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_Temp", float64(status.Temp), senml.Degree, now, 0))
 		rs,_:=json.Marshal(status)
-		list = append(list, senml.NewString(strconv.FormatInt(mcu_id, 10)+"_OPU_STATUS",string(rs), "STATUS", now, 0))
+		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_STATUS",string(rs), "STATUS", now, 0))
 		data, err := senml.EncodeJSON(list)
 		if err != nil {
 			fmt.Print("Error encoding to JSON:", err)
@@ -172,7 +172,7 @@ func ConvertJsonToSenML(mcu_id int64, obj interface{}, op_code byte,topicLogMain
 		fmt.Println(len(logs))
 		list := []senml.Measurement{}
 		rs,_:=json.Marshal(logs)
-		list = append(list, senml.NewString(strconv.FormatInt(mcu_id, 10)+"_OPU_LOG",string(rs), "LOG", now, 0))
+		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_LOG",string(rs), "LOG", now, 0))
 		data, err := senml.EncodeJSON(list)
 		if err != nil {
 			fmt.Print("Error encoding to JSON:", err)
