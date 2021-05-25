@@ -29,7 +29,7 @@
 	"UserNameAuth": "admin",
 	"PasswordAuth": "admin",
 	"KeyAuth": "mykey",
-	"TopicDeviceMainflux": "channels/d36131a7-6cae-44c1-9602-f2e2487339e3/messages",
+	"TopicDeviceMainflux": "channels/7b0fa712-3301-44f3-a26d-d5e8dc1b9aea/messages",
 	"TTTTMInfo": {
 		"TTTTMMainFluxAddress": "10.16.150.132",
 		"Port": 8008
