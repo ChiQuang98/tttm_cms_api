@@ -57,6 +57,14 @@ func main() {
 		} else {
 			glog.Info("OK")
 		}
+		glog.Info("Connecting to MQTT broker Auth... ")
+		err = services.ConnectMQTTOpts()
+		if err != nil {
+			glog.Info("Failed, exit")
+			os.Exit(1)
+		} else {
+			glog.Info("OK")
+		}
 	}
 
 	ticker := time.NewTicker(60 * time.Second)

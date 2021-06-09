@@ -21,6 +21,7 @@ import (
 )
 
 var mqttClient MQTT.Client
+var MqttClientPushLog MQTT.Client
 var mqttInfo *settings.MqttInfo = settings.GetMqttInfo()
 var nodes []models.NodeDetail
 
@@ -417,22 +418,11 @@ func ConnectMqtt() error {
 	server := fmt.Sprintf("tcp://%s:%d", mqttInfo.ServerAddress, mqttInfo.ServerPort)
 	opts := MQTT.NewClientOptions().AddBroker(server)
 	opts.SetClientID(fmt.Sprintf("%s@%s", base.LP_CMS_CLIENT, ip))
-	//username := base.LP_CMS_CLIENT
-	//password := base.LP_CMS_CLIENT
-	//if len(mqttInfo.UserName) > 0 {
-	//	fmt.Println("IN")
-	//	username = mqttInfo.UserName
-	//	password = mqttInfo.Password
-	//}
-
-	//opts.SetUsername(username)
-	//opts.SetPassword(password)
 	opts.SetCleanSession(false)
 	opts.SetKeepAlive(60 * time.Second)
 	opts.SetAutoReconnect(true)
 	opts.SetConnectionLostHandler(onConnectionLost)
 	opts.SetOnConnectHandler(onConnected)
-
 	mqttClient = MQTT.NewClient(opts)
 
 	if token := mqttClient.Connect(); token.Wait() && token.Error() != nil {
@@ -440,7 +430,27 @@ func ConnectMqtt() error {
 	}
 	return nil
 }
-
+func ConnectMQTTOpts() error{
+	defer func() {
+		if err := recover(); err != nil {
+			glog.Error("-------------RECOVER err: ", err)
+		}
+	}()
+	server := fmt.Sprintf("tcp://%s:%d", mqttInfo.ServerAddress, mqttInfo.ServerPortAuth)
+	opts := MQTT.NewClientOptions().AddBroker(server)
+	opts.SetClientID("ClientPushSenML")
+	//opts.SetDefaultPublishHandler(f)
+	opts.SetUsername(settings.GetThingAuthPush().ID)
+	opts.SetPassword(settings.GetThingAuthPush().Key)
+	opts.SetCleanSession(false)
+	opts.SetKeepAlive(60 * time.Second)
+	opts.SetAutoReconnect(true)
+	MqttClientPushLog = MQTT.NewClient(opts)
+	if token := MqttClientPushLog.Connect(); token.Wait() && token.Error() != nil {
+		return token.Error()
+	}
+	return nil
+}
 func DisconnectMqtt() {
 	mqttClient.Unsubscribe("h/s/#")
 	//if len(nodes) > 0 {
@@ -452,7 +462,7 @@ func DisconnectMqtt() {
 	mqttClient.Disconnect(250)
 }
 func publishMessageSenML(topic string, qos byte, retain bool, msgSenML string) error {
-	token := mqttClient.Publish(topic, qos, retain, msgSenML)
+	token := MqttClientPushLog.Publish(topic, qos, retain, msgSenML)
 	return token.Error()
 }
 var onConnectionLost MQTT.ConnectionLostHandler = func(client MQTT.Client, reason error) {

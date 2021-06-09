@@ -6,7 +6,8 @@
 	"MqttInfo":{
 		"ServerAddress": "10.16.150.132",
 		"ServerAddressHTTP": "10.16.150.132",
-		"ServerPort": 1883,
+		"ServerPort": 8005,
+		"ServerPortAuth": 1883,
 		"NodeName": "1bae18920ebf@172.17.0.5",
 		"UserName": "",
 		"Password": "",
@@ -30,6 +31,10 @@
 	"PasswordAuth": "admin",
 	"KeyAuth": "mykey",
 	"TopicDeviceMainflux": "channels/7b0fa712-3301-44f3-a26d-d5e8dc1b9aea/messages",
+	"ThingAuthPush": {
+		"ID": "b1c0ccb9-3aba-47a3-8d67-54eb76dedad1",
+		"Key": "ec204891-ccab-4b2e-a3ec-da5bdab9ed59"
+	},
 	"TTTTMInfo": {
 		"TTTTMMainFluxAddress": "10.16.150.132",
 		"Port": 8008

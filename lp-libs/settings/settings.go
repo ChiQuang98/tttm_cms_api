@@ -21,8 +21,8 @@ type Settings struct {
 	UserNameAuth         string
 	PasswordAuth         string
 	KeyAuth				 string
-	TopicControlLogMainflux  string
 	TopicDeviceMainflux  string
+	ThingAuthPush *ThingAuthPush
 	FileServerPath       string
 	FileServerPublicPath string
 	TTTTMInfo *TTTMInfo
@@ -36,11 +36,15 @@ type CmsInfo struct {
 	UserName      string
 	Password      string
 }
-
+type ThingAuthPush struct {
+	ID string
+	Key string
+}
 type MqttInfo struct {
 	ServerAddress   string
 	ServerAddressHTTP   string
 	ServerPort      int
+	ServerPortAuth      int
 	NodeName        string
 	UserName        string
 	Password        string
@@ -48,10 +52,10 @@ type MqttInfo struct {
 	HttpApiUserName string
 	HttpApiPassword string
 }
-func GetTopicControlLogMainflux() string  {
-	return settings.TopicControlLogMainflux
-
+func GetThingAuthPush() *ThingAuthPush{
+	return settings.ThingAuthPush
 }
+
 
 func GetTopicDeviceMainflux() string  {
 	return settings.TopicDeviceMainflux
