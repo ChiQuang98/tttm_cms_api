@@ -607,7 +607,7 @@ func CheckMqttStatusClients() {
 					//glog.Error("===sonnh===id:"+id+" conn.ClientId"+conn.ClientId+" conn.IsOnline:"+strconv.FormatBool(conn.IsOnline))
 				}
 
-				if id == conn.ClientId && conn.IsOnline == true {
+				if id == conn.ClientId && conn.IsOnline == true &&  len(conn.PeerHost) > 0 {
 					isOnl = true
 					//TODO: call api update connection status
 					//layout := "2006-01-02 15:04:05"
