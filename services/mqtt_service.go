@@ -63,7 +63,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			glog.V(8).Infof("MCU %d PUT OPU_GENERIC to CMS ---> failure (%s)", MCUID, message)
 		}
 		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, generic, base.OPU_GENERIC,topicLogMainflux)
+		_, err = ConvertJsonToSenML(MCUID, generic, base.OPU_GENERIC, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", MCUID, err)
 			return
@@ -106,7 +106,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			}
 		}
 		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, cameras, base.OPU_CAMERA,topicLogMainflux)
+		_, err = ConvertJsonToSenML(MCUID, cameras, base.OPU_CAMERA, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", obj.Id, err)
 			return
@@ -138,7 +138,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			}
 		}
 		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, phone, base.OPU_PHONE,topicLogMainflux)
+		_, err = ConvertJsonToSenML(MCUID, phone, base.OPU_PHONE, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", obj.Id, err)
 			return
@@ -164,7 +164,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			}
 		}
 		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, sensors, base.OPU_SENSOR,topicLogMainflux)
+		_, err = ConvertJsonToSenML(MCUID, sensors, base.OPU_SENSOR, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", obj.Id, err)
 			return
@@ -190,7 +190,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			}
 		}
 		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, alarms, base.OPU_ALARM,topicLogMainflux)
+		_, err = ConvertJsonToSenML(MCUID, alarms, base.OPU_ALARM, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", obj.Id, err)
 			return
@@ -222,7 +222,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			}
 		}
 		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, status, base.OPU_STATUS,topicLogMainflux)
+		_, err = ConvertJsonToSenML(MCUID, status, base.OPU_STATUS, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", obj.Id, err)
 			return
@@ -248,7 +248,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			}
 		}
 		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, items, base.OPU_MEDIA,topicLogMainflux)
+		_, err = ConvertJsonToSenML(MCUID, items, base.OPU_MEDIA, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", obj.Id, err)
 			return
@@ -319,7 +319,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			}
 		}
 		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, logs, base.OPU_LOG,topicLogMainflux)
+		_, err = ConvertJsonToSenML(MCUID, logs, base.OPU_LOG, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", obj.Id, err)
 			return
@@ -430,7 +430,7 @@ func ConnectMqtt() error {
 	}
 	return nil
 }
-func ConnectMQTTOpts() error{
+func ConnectMQTTOpts() error {
 	defer func() {
 		if err := recover(); err != nil {
 			glog.Error("-------------RECOVER err: ", err)
@@ -469,6 +469,7 @@ func publishMessageSenML(topic string, qos byte, retain bool, msgSenML string) e
 	token := MqttClientPushLog.Publish(topic, qos, retain, msgSenML)
 	return token.Error()
 }
+
 var onConnectionLost MQTT.ConnectionLostHandler = func(client MQTT.Client, reason error) {
 	glog.Infof("onConnectionLost/server(%s:%d)", mqttInfo.ServerAddress, mqttInfo.ServerPort)
 }
@@ -582,11 +583,7 @@ func CheckMqttStatusClients() {
 		glog.Error("checkMqttStatusClients/redis.GetAllMcuIds err: ", err)
 		return
 	}
-	conns, err := getMqttStatusClients("api/v1/session/show")
-	if err != nil {
-		glog.Error("checkMqttStatusClients/getMqttStatusClients err: ", err)
-		return
-	}
+
 	for _, id := range ids {
 		//fmt.Println(id)
 		mcuId, err := strconv.ParseInt(id, 10, 64)
@@ -594,49 +591,60 @@ func CheckMqttStatusClients() {
 		if err != nil {
 			continue
 		}
-		isOnl := false
-		for _, conn := range conns {
-			if id == "88171961786836606" &&conn.ClientId=="88171961786836606" && conn.IsOnline== false{
-				//fmt.Println("===sonnh===id:"+id+" conn.ClientId"+conn.ClientId+" conn.IsOnline:"+strconv.FormatBool(conn.IsOnline))
-				//glog.Error("===sonnh===id:"+id+" conn.ClientId"+conn.ClientId+" conn.IsOnline:"+strconv.FormatBool(conn.IsOnline))
-			}
 
-			if id == conn.ClientId && conn.IsOnline == true {
-				isOnl = true
-				//TODO: call api update connection status
-				//layout := "2006-01-02 15:04:05"
-				//t, err := time.Parse(layout, conn.ConnectedAt)
-				clientts, err := getMQTTClientts("api/v1/session/show?--session_started_at&--queue_started_at&--client_id="+conn.ClientId)
-				if err != nil{
-					glog.Error("Fail get status client -- CheckMqttStatusClients/ getMQTTClientts")
-					return
+		path := fmt.Sprintf("api/v1/session/show/?--client_id=%d", id)
+		conns, err := getMqttStatusClients(path)
+		if err != nil {
+			glog.Error("checkMqttStatusClients/getMqttStatusClients err: ", err)
+			return
+		}
+
+		isOnl := false
+		if len(conns) != 0 {
+			for _, conn := range conns {
+				if id == "88171961786836606" && conn.ClientId == "88171961786836606" && conn.IsOnline == false {
+					//fmt.Println("===sonnh===id:"+id+" conn.ClientId"+conn.ClientId+" conn.IsOnline:"+strconv.FormatBool(conn.IsOnline))
+					//glog.Error("===sonnh===id:"+id+" conn.ClientId"+conn.ClientId+" conn.IsOnline:"+strconv.FormatBool(conn.IsOnline))
 				}
-				if len(clientts)>0{
-					var t int64 = clientts[0].Session_started_at/1000
-					//if err != nil {
-					//	continue
-					//}
-					success, message, err := CmsUpdateMcuConnectStatus(mcuId, base.MCU_CONNECTED, conn.PeerHost, t, 0)
+
+				if id == conn.ClientId && conn.IsOnline == true {
+					isOnl = true
+					//TODO: call api update connection status
+					//layout := "2006-01-02 15:04:05"
+					//t, err := time.Parse(layout, conn.ConnectedAt)
+					clientts, err := getMQTTClientts("api/v1/session/show?--session_started_at&--queue_started_at&--client_id=" + conn.ClientId)
 					if err != nil {
-						glog.Errorf("checkMqttStatusClients/connected/%d/CmsUpdateMcuConnectStatus err: %v", mcuId, err)
-						continue
-					} else {
-						if success {
-							glog.Infof("PUT %d connected status to CMS ---> success", mcuId)
+						glog.Error("Fail get status client -- CheckMqttStatusClients/ getMQTTClientts")
+						return
+					}
+					if len(clientts) > 0 {
+						var t int64 = clientts[0].Session_started_at / 1000
+						//if err != nil {
+						//	continue
+						//}
+						success, message, err := CmsUpdateMcuConnectStatus(mcuId, base.MCU_CONNECTED, conn.PeerHost, t, 0)
+						if err != nil {
+							glog.Errorf("checkMqttStatusClients/connected/%d/CmsUpdateMcuConnectStatus err: %v", mcuId, err)
+							continue
 						} else {
-							glog.Infof("PUT %d connected status to CMS ---> failure (%s)", mcuId, message)
+							if success {
+								glog.Infof("PUT %d connected status to CMS ---> success", mcuId)
+							} else {
+								glog.Infof("PUT %d connected status to CMS ---> failure (%s)", mcuId, message)
+							}
+						}
+						//TOTO: save to redis
+						err = redis.UpdateMcuConnectionStatus(mcuId, base.MCU_CONNECTED, t, conn.PeerHost)
+						if err != nil {
+							glog.Errorf("checkMqttStatusClients/%d/redis.UpdateConnectionStatus err: %v", mcuId, err)
+							continue
 						}
 					}
-					//TOTO: save to redis
-					err = redis.UpdateMcuConnectionStatus(mcuId, base.MCU_CONNECTED, t, conn.PeerHost)
-					if err != nil {
-						glog.Errorf("checkMqttStatusClients/%d/redis.UpdateConnectionStatus err: %v", mcuId, err)
-						continue
-					}
-				}
 
+				}
 			}
 		}
+
 		if !isOnl {
 			//TODO: call api update connection status
 			client := redis.GetMcuInfo(mcuId)
@@ -653,7 +661,7 @@ func CheckMqttStatusClients() {
 					}
 				}
 				//TOTO: save to redis
-				err = redis.UpdateMcuConnectionStatus(mcuId, base.MCU_DISCONNECTED, client.ConnTime,"")
+				err = redis.UpdateMcuConnectionStatus(mcuId, base.MCU_DISCONNECTED, client.ConnTime, "")
 				if err != nil {
 					glog.Errorf("onMessageClientConnection/%d/redis.UpdateConnectionStatus err: %v", mcuId, err)
 					break
@@ -676,7 +684,7 @@ func getMqttStatusClients(path string) ([]models.MqttClientStatus, error) {
 	//fmt.Println(mqttInfo.HttpApiUserName, mqttInfo.HttpApiPassword)
 	res, err := client.Do(req)
 	//If err returned -> auto close - dont need to close
-	if res!=nil{
+	if res != nil {
 		defer res.Body.Close()
 	}
 	if err == nil {
@@ -702,7 +710,7 @@ func getMqttStatusClients(path string) ([]models.MqttClientStatus, error) {
 
 func getMQTTClientts(path string) ([]models.MQTTClientTs, error) {
 	client := &http.Client{}
-	url := fmt.Sprintf("http://%s@%s:%d/%s",settings.GetKeyAuth(), mqttInfo.ServerAddressHTTP, mqttInfo.HttpApiPort, path)
+	url := fmt.Sprintf("http://%s@%s:%d/%s", settings.GetKeyAuth(), mqttInfo.ServerAddressHTTP, mqttInfo.HttpApiPort, path)
 
 	//url := fmt.Sprintf("http://%s:%d/%s", mqttInfo.ServerAddress, mqttInfo.HttpApiPort, path)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -713,7 +721,7 @@ func getMQTTClientts(path string) ([]models.MQTTClientTs, error) {
 	//fmt.Println(mqttInfo.HttpApiUserName, mqttInfo.HttpApiPassword)
 	res, err := client.Do(req)
 	//If err returned -> auto close - dont need to close
-	if res!=nil{
+	if res != nil {
 		defer res.Body.Close()
 	}
 	if err == nil {
@@ -756,7 +764,7 @@ func resolveHostIp() (string, error) {
 func inorgeLPClient(clientId, username string) bool {
 	return strings.Contains(clientId, base.LP_MCU_API) || strings.Contains(clientId, base.LP_CMS_CLIENT) || username == base.LP_MCU_API || username == base.LP_CMS_CLIENT
 }
-func updateMcuConnStatus()  {
+func updateMcuConnStatus() {
 	connections, err := getMqttStatusClients("api/v1/session/show")
 	//err := json.Unmarshal(msg.Payload(), connection)
 	if err != nil {
@@ -769,7 +777,7 @@ func updateMcuConnStatus()  {
 			continue
 		}
 
-		clientts, err := getMQTTClientts("api/v1/session/show?--session_started_at&--queue_started_at&--client_id="+conn.ClientId)
+		clientts, err := getMQTTClientts("api/v1/session/show?--session_started_at&--queue_started_at&--client_id=" + conn.ClientId)
 		//Vernemq's ClientId: mqttclientid+timestamp connect mqtt broker (from 2001 to 2286 has 13 digits)
 		mcuId, err := strconv.ParseInt(conn.ClientId, 10, 64)
 		if err != nil {
@@ -777,7 +785,7 @@ func updateMcuConnStatus()  {
 			return
 		}
 		var ts int64 = clientts[0].Session_started_at
-		if (conn.IsOnline == false) {
+		if conn.IsOnline == false {
 			//disconnected
 			//TOTO: save to redis
 			err = redis.UpdateMcuConnectionStatus(mcuId, base.MCU_DISCONNECTED, ts, conn.PeerHost)
@@ -827,7 +835,7 @@ func collectLogMCU(mcuId int64, mcuGeneric *base.OPUGeneric) (bool, string, erro
 			glog.Error("RECOVER/CmsUpdateMcuConfig err: ", err)
 		}
 	}()
-	var camerasListString string =""
+	var camerasListString string = ""
 	camGeneric := mcuGeneric.CameraList
 	for _, cam := range camGeneric {
 		camerasListString = camerasListString + "," + string(cam.CameraId)
@@ -837,10 +845,10 @@ func collectLogMCU(mcuId int64, mcuGeneric *base.OPUGeneric) (bool, string, erro
 		camerasListString = camerasListString[1:camerasListStringLen]
 	}
 
-	var sensorsListString string =""
+	var sensorsListString string = ""
 	sensorGeneric := mcuGeneric.SensorList
 	for _, ssr := range sensorGeneric {
-		sensorsListString = sensorsListString +"," + string(ssr.SensorId)
+		sensorsListString = sensorsListString + "," + string(ssr.SensorId)
 	}
 	sensorsListStringLen := len(sensorsListString)
 	if sensorsListStringLen > 0 {
@@ -893,28 +901,28 @@ func collectLogMCU(mcuId int64, mcuGeneric *base.OPUGeneric) (bool, string, erro
 		return false, "", err
 	}
 
-	req.Header.Set("Content-Type","application/json")
-	req.Header.Set("Accept","application/json")
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
 	res, err := client.Do(req)
 	defer res.Body.Close()
 	if err == nil {
 		if res != nil {
 			data, _ := ioutil.ReadAll(res.Body)
 			responseMSG := new(models.ResponseMSGTTTM)
-			json.Unmarshal(data,&responseMSG)
-			s,_ := (json.Marshal(responseMSG))
+			json.Unmarshal(data, &responseMSG)
+			s, _ := (json.Marshal(responseMSG))
 			fmt.Println(string(s))
-			if responseMSG.Status == 1{
-				return true,"", nil
+			if responseMSG.Status == 1 {
+				return true, "", nil
 			} else {
 				msgFail := string(responseMSG.Message)
 				switch responseMSG.Code {
 				case "SET_GROUP_ERROR_0001":
-					return false,msgFail,nil
+					return false, msgFail, nil
 				case "SYSTEM_ERROR":
-					return false,msgFail,nil
+					return false, msgFail, nil
 				default:
-					return false,msgFail,nil
+					return false, msgFail, nil
 				}
 			}
 
