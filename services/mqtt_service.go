@@ -442,7 +442,7 @@ func ConnectMQTTOpts() error{
 	}
 	server := fmt.Sprintf("tcp://%s:%d", mqttInfo.ServerAddress, mqttInfo.ServerPortAuth)
 	opts := MQTT.NewClientOptions().AddBroker(server)
-	opts.SetClientID(fmt.Sprintf("%s@%s", "ClientPushSenML", ip))
+	opts.SetClientID(fmt.Sprintf("%s@%s", "ClientPushSenMLCMS", ip))
 	//opts.SetDefaultPublishHandler(f)
 	opts.SetUsername(settings.GetThingAuthPush().ID)
 	opts.SetPassword(settings.GetThingAuthPush().Key)
