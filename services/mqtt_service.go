@@ -436,9 +436,13 @@ func ConnectMQTTOpts() error{
 			glog.Error("-------------RECOVER err: ", err)
 		}
 	}()
+	ip, err := resolveHostIp()
+	if err != nil {
+		return err
+	}
 	server := fmt.Sprintf("tcp://%s:%d", mqttInfo.ServerAddress, mqttInfo.ServerPortAuth)
 	opts := MQTT.NewClientOptions().AddBroker(server)
-	opts.SetClientID("ClientPushSenML")
+	opts.SetClientID(fmt.Sprintf("%s@%s", "ClientPushSenML", ip))
 	//opts.SetDefaultPublishHandler(f)
 	opts.SetUsername(settings.GetThingAuthPush().ID)
 	opts.SetPassword(settings.GetThingAuthPush().Key)
