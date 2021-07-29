@@ -62,8 +62,9 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		} else {
 			glog.V(8).Infof("MCU %d PUT OPU_GENERIC to CMS ---> failure (%s)", MCUID, message)
 		}
-		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, generic, base.OPU_GENERIC, topicLogMainflux)
+		//TODO: convert to SenML, insert InfluxDB;
+		fmt.Println("Ver2")
+		_, err = ConvertJsonToSenMLVer2(MCUID, generic, base.OPU_GENERIC, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", MCUID, err)
 			return
@@ -164,7 +165,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			}
 		}
 		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, sensors, base.OPU_SENSOR, topicLogMainflux)
+		_, err = ConvertJsonToSenMLVer2(MCUID, sensors, base.OPU_SENSOR, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", obj.Id, err)
 			return
@@ -222,7 +223,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			}
 		}
 		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, status, base.OPU_STATUS, topicLogMainflux)
+		_, err = ConvertJsonToSenMLVer2(MCUID, status, base.OPU_STATUS, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", obj.Id, err)
 			return
