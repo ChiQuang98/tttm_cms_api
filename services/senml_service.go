@@ -11,17 +11,66 @@ import (
 	"tttm_cms_api/lp-libs/base"
 	"tttm_cms_api/lp-libs/models"
 )
+
+const NULL = "NULL"
 func arrayToString(a []int64, delim string) string {
+	if len(a) ==0{
+		return NULL
+	}
 	return strings.Trim(strings.Replace(fmt.Sprint(a), " ", delim, -1), "[]")
 	//return strings.Trim(strings.Join(strings.Split(fmt.Sprint(a), " "), delim), "[]")
 	//return strings.Trim(strings.Join(strings.Fields(fmt.Sprint(a)), delim), "[]")
 }
 func arrayToString32(a []int32, delim string) string {
+	if len(a) ==0{
+		return NULL
+	}
 	return strings.Trim(strings.Replace(fmt.Sprint(a), " ", delim, -1), "[]")
 	//return strings.Trim(strings.Join(strings.Split(fmt.Sprint(a), " "), delim), "[]")
 	//return strings.Trim(strings.Join(strings.Fields(fmt.Sprint(a)), delim), "[]")
 }
-
+func HandleNullObj(obj interface{},op_code byte)(interface{})  {
+	switch op_code {
+	case base.OPU_GENERIC:
+		var generic *base.OPUGeneric = obj.(*base.OPUGeneric)
+		if generic.LocalIp == ""{
+			generic.LocalIp = NULL
+		}
+		if generic.VCode=="" {
+			generic.VCode = NULL
+		}
+		if generic.PhoneNumber == ""{
+			generic.PhoneNumber = NULL
+		}
+		if generic.FirmwareVersion == ""{
+			generic.FirmwareVersion = NULL
+		}
+		return generic
+	case base.OPU_CAMERA:
+		var camera base.OPUCamera = obj.(base.OPUCamera)
+		if camera.CameraName == ""{
+			camera.CameraName = NULL
+		}
+		if camera.CameraLocalIp == ""{
+			camera.CameraLocalIp = NULL
+		}
+		return camera
+	case base.OPU_SENSOR:
+		var sensor base.OPUSensor = obj.(base.OPUSensor)
+		if sensor.Name == ""{
+			sensor.Name = NULL
+		}
+		return sensor
+	case base.OPU_ALARM:
+		var alarm base.OPHAlarm = obj.(base.OPHAlarm)
+		if alarm.Name == "" { 
+			alarm.Name = NULL
+		}
+		return alarm
+	default:
+		return nil
+	}
+}
 func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte,topicLogMainflux string)(string, error) {
 
 	now := time.Now()
@@ -29,25 +78,31 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte,topicLog
 	case base.OPU_GENERIC:
 		fmt.Println("IN OPU_GENERIC ver2")
 		var generic *base.OPUGeneric = obj.(*base.OPUGeneric)
-		//volumn := float64(generic.Volume)
+		generic = HandleNullObj(generic,base.OPU_GENERIC).(*base.OPUGeneric)
+		volumn := float64(generic.Volume)
+		if generic.LocalIp ==""{
+			generic.LocalIp = "null"
+		}
 		list := []senml.Measurement{
-			//senml.NewValue("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC", volumn, "Volume", now, 0),
+			senml.NewValue("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_Volume", volumn, "Volume", now, 0),
 			senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_LocalIp", generic.LocalIp, "LocalIp", now, 0),
 			senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_GroupList", arrayToString(generic.GroupList,","), "GroupList", now, 0),
 			senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_PhoneNumber", generic.PhoneNumber, "PhoneNumber", now, 0),
+			senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_VCode", generic.VCode, "VCode", now, 0),
 			//senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC","base" , "BaseNameBaseName", now, 0),
-			senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_ConnStatus", string(generic.ConnStatus), "ConnStatus", now, 0),
+			//senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_ConnStatus", string(generic.ConnStatus), "ConnStatus", now, 0),
 			senml.NewValue("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_MediaIdLastest", float64(generic.MediaIdLastest), "MediaIdLastest", now, 0),
 			senml.NewValue("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_FMVolume", float64(generic.FMVolume), "FMVolume", now, 0),
 			senml.NewValue("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_FMAuto", float64(generic.FMAuto), "FMAuto", now, 0),
 			senml.NewValue("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_TxType", float64(generic.TxType), "TxType", now, 0),
-			senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_ConnTime",strconv.FormatInt(generic.ConnTime, 10) , "ConnTime", now, 0),
-			senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_WanIP",generic.WanIP , "WanIP", now, 0),
+			//senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_ConnTime",strconv.FormatInt(generic.ConnTime, 10) , "ConnTime", now, 0),
+			//senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_WanIP","generic.WanIP" , "WanIP", now, 0),
 			senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_FirmwareVersion", generic.FirmwareVersion, "FirmwareVersion", now, 0),
 
 		}
 		var listOPUCamera []base.OPUCamera = generic.CameraList
 		for _,camera :=range listOPUCamera{
+			camera = HandleNullObj(camera,base.OPU_CAMERA).(base.OPUCamera)
 			list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_OPUCameraID:"+strconv.FormatInt(camera.CameraId, 10)+"_CameraName",
 				camera.CameraName , "CameraName", now, 0))
 			list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_OPUCameraID:"+strconv.FormatInt(camera.CameraId, 10)+"_CameraLocalIp",
@@ -61,6 +116,7 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte,topicLog
 		}
 		var listOPUSensor []base.OPUSensor = generic.SensorList
 		for _,sensor :=range listOPUSensor{
+			sensor = HandleNullObj(sensor,base.OPU_SENSOR).(base.OPUSensor)
 			list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_SensorId:"+strconv.FormatInt(sensor.SensorId, 10)+"_Enable",
 				string(sensor.Enable) , "Enable", now, 0))
 			list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_SensorId:"+strconv.FormatInt(sensor.SensorId, 10)+"_Name",
@@ -78,6 +134,7 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte,topicLog
 		}
 		var listOPUAlarm []base.OPUAlarm = generic.AlarmList
 		for _,alarm :=range listOPUAlarm{
+			alarm = HandleNullObj(alarm,base.OPU_ALARM).(base.OPUAlarm)
 			list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_EventId:"+strconv.FormatInt(alarm.EventId, 10)+"_Name",
 				alarm.Name , "Name", now, 0))
 			list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_GENERIC_EventId:"+strconv.FormatInt(alarm.EventId, 10)+"_State",
@@ -121,6 +178,7 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte,topicLog
 		fmt.Println(len(sensors))
 		list := []senml.Measurement{}
 		for _,sensor :=range sensors{
+			sensor = HandleNullObj(sensor,base.OPU_SENSOR).(base.OPUSensor)
 			list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_SENSOR_SensorId:"+strconv.FormatInt(sensor.SensorId, 10)+"_Enable",
 				string(sensor.Enable) , "Enable", now, 0))
 			list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_SENSOR_SensorId:"+strconv.FormatInt(sensor.SensorId, 10)+"_Name",
@@ -156,11 +214,11 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte,topicLog
 		list := []senml.Measurement{}
 		list = append(list, senml.NewValue("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_STATUS_Temp", float64(status.Temp), "Temp", now, 0))
 		list = append(list, senml.NewValue("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_STATUS_SpeakerSta", float64(status.SpeakerSta), "SpeakerSta", now, 0))
-		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_TxType", string(status.TxType), "TxType", now, 0))
-		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_MCsq", string(status.MCsq), "MCsq", now, 0))
-		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_WiCsq", string(status.WiCsq), "WiCsq", now, 0))
-		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_SpeakerErr", string(status.SpeakerErr), "SpeakerErr", now, 0))
-		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_FMStatus", string(status.FMStatus), "FMStatus", now, 0))
+		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_STATUS_TxType", string(status.TxType), "TxType", now, 0))
+		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_STATUS_MCsq", string(status.MCsq), "MCsq", now, 0))
+		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_STATUS_WiCsq", string(status.WiCsq), "WiCsq", now, 0))
+		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_STATUS_SpeakerErr", string(status.SpeakerErr), "SpeakerErr", now, 0))
+		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_STATUS_FMStatus", string(status.FMStatus), "FMStatus", now, 0))
 		//rs,_:=json.Marshal(status)
 		//list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_STATUS",string(rs), "STATUS", now, 0))
 		data, err := senml.EncodeJSON(list)
@@ -180,6 +238,7 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte,topicLog
 		fmt.Println(len(cameras))
 		list := []senml.Measurement{}
 		for _,camera :=range cameras{
+			camera = HandleNullObj(camera,base.OPU_CAMERA).(base.OPUCamera)
 			list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_CAMERA_OPUCameraID:"+strconv.FormatInt(camera.CameraId, 10)+"_CameraName",
 				camera.CameraName , "CameraName", now, 0))
 			list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_CAMERA_OPUCameraID:"+strconv.FormatInt(camera.CameraId, 10)+"_CameraLocalIp",
@@ -210,8 +269,11 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte,topicLog
 		//var cameras []base.OPUCamera = obj.([]base.OPUCamera)
 		fmt.Println(len(phone))
 		list := []senml.Measurement{}
-		rs,_:=json.Marshal(phone)
-		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_PHONE",string(rs), "PHONE", now, 0))
+		//rs,_:=json.Marshal(phone)
+		if phone == ""{
+			phone = NULL
+		}
+		list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_PHONE",phone, "PHONE", now, 0))
 		data, err := senml.EncodeJSON(list)
 		if err != nil {
 			fmt.Print("Error encoding to JSON:", err)
@@ -230,6 +292,7 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte,topicLog
 			
 			list := []senml.Measurement{}
 			for _,alarm :=range alarms{
+				alarm = HandleNullObj(alarm,base.OPU_ALARM).(base.OPUAlarm)
 				list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_ALARM_EventId:"+strconv.FormatInt(alarm.EventId, 10)+"_Name",
 					alarm.Name , "Name", now, 0))
 				list = append(list, senml.NewString("TTTM_"+strconv.FormatInt(mcu_id, 10)+"_OPU_ALARM_EventId:"+strconv.FormatInt(alarm.EventId, 10)+"_State",
