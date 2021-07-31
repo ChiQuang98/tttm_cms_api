@@ -107,7 +107,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			}
 		}
 		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, cameras, base.OPU_CAMERA, topicLogMainflux)
+		_, err = ConvertJsonToSenMLVer2(MCUID, cameras, base.OPU_CAMERA, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", obj.Id, err)
 			return
@@ -139,7 +139,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			}
 		}
 		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, phone, base.OPU_PHONE, topicLogMainflux)
+		_, err = ConvertJsonToSenMLVer2(MCUID, phone, base.OPU_PHONE, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", obj.Id, err)
 			return
@@ -191,7 +191,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			}
 		}
 		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, alarms, base.OPU_ALARM, topicLogMainflux)
+		_, err = ConvertJsonToSenMLVer2(MCUID, alarms, base.OPU_ALARM, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", obj.Id, err)
 			return
@@ -249,7 +249,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			}
 		}
 		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, items, base.OPU_MEDIA, topicLogMainflux)
+		_, err = ConvertJsonToSenMLVer2(MCUID, items, base.OPU_MEDIA, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", obj.Id, err)
 			return
@@ -320,7 +320,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 			}
 		}
 		//TODO: convert to SenML, insert InfluxDB
-		_, err = ConvertJsonToSenML(MCUID, logs, base.OPU_LOG, topicLogMainflux)
+		_, err = ConvertJsonToSenMLVer2(MCUID, logs, base.OPU_LOG, topicLogMainflux)
 		if err != nil {
 			glog.Errorf("onMessage/OPU_GENERIC/%d/convertJsonToSenML: %v", obj.Id, err)
 			return
@@ -650,7 +650,7 @@ func CheckMqttStatusClients() {
 			//TODO: call api update connection status
 			client := redis.GetMcuInfo(mcuId)
 			if client != nil {
-				success, message, err := CmsUpdateMcuConnectStatus(mcuId, base.MCU_DISCONNECTED, "", client.ConnTime, 0)
+				success, _, err := CmsUpdateMcuConnectStatus(mcuId, base.MCU_DISCONNECTED, "", client.ConnTime, 0)
 				if err != nil {
 					glog.Errorf("onMessageClientConnection/disconnected/%d/CmsUpdateMcuConnectStatus err: %v", mcuId, err)
 					return
@@ -658,7 +658,7 @@ func CheckMqttStatusClients() {
 					if success {
 						glog.Infof("PUT %d disconnected status to CMS ---> success", mcuId)
 					} else {
-						glog.Infof("PUT %d disconnected status to CMS ---> failure (%s)", mcuId, message)
+						//glog.Infof("PUT %d disconnected status to CMS ---> failure (%s)", mcuId, message)
 					}
 				}
 				//TOTO: save to redis
