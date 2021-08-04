@@ -78,7 +78,7 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte, topicLo
 	switch strconv.FormatInt(mcu_id, 10) {
 	case "88171961786836606":
 		{
-			thingID = "1e218a6f-d85c-4f86-8749-75d3e77f6f57"
+			thingID = "b1c0ccb9-3aba-47a3-8d67-54eb76dedad1"
 			break
 		}
 	case "88171961786836969":
