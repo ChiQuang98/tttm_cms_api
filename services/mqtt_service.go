@@ -256,6 +256,7 @@ var onMessage MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 		}
 		break
 	case base.OPU_LOG:
+
 		logs := []base.OPULog{}
 		err := json.Unmarshal(obj.Data, &logs)
 		if err != nil {
@@ -604,8 +605,8 @@ func CheckMqttStatusClients() {
 		if len(conns) != 0 {
 			for _, conn := range conns {
 				if id == "88171961786836606" && conn.ClientId == "88171961786836606" && conn.IsOnline == false {
-					//fmt.Println("===sonnh===id:"+id+" conn.ClientId"+conn.ClientId+" conn.IsOnline:"+strconv.FormatBool(conn.IsOnline))
-					//glog.Error("===sonnh===id:"+id+" conn.ClientId"+conn.ClientId+" conn.IsOnline:"+strconv.FormatBool(conn.IsOnline))
+					fmt.Println("===sonnh===id:"+id+" conn.ClientId"+conn.ClientId+" conn.IsOnline:"+strconv.FormatBool(conn.IsOnline))
+					glog.Error("===sonnh===id:"+id+" conn.ClientId"+conn.ClientId+" conn.IsOnline:"+strconv.FormatBool(conn.IsOnline))
 				}
 
 				if id == conn.ClientId && conn.IsOnline == true &&  len(conn.PeerHost) > 0 {
@@ -623,12 +624,14 @@ func CheckMqttStatusClients() {
 						//if err != nil {
 						//	continue
 						//}
+
 						success, message, err := CmsUpdateMcuConnectStatus(mcuId, base.MCU_CONNECTED, conn.PeerHost, t, 0)
 						if err != nil {
 							glog.Errorf("checkMqttStatusClients/connected/%d/CmsUpdateMcuConnectStatus err: %v", mcuId, err)
 							continue
 						} else {
 							if success {
+								ConvertJsonToSenMLVer2(mcuId,nil,base.STATE_DEVICE_CONNECTED,settings.GetTopicDeviceMainflux())
 								glog.Infof("PUT %d connected status to CMS ---> success", mcuId)
 							} else {
 								glog.Infof("PUT %d connected status to CMS ---> failure (%s)", mcuId, message)
@@ -650,15 +653,17 @@ func CheckMqttStatusClients() {
 			//TODO: call api update connection status
 			client := redis.GetMcuInfo(mcuId)
 			if client != nil {
-				success, _, err := CmsUpdateMcuConnectStatus(mcuId, base.MCU_DISCONNECTED, "", client.ConnTime, 0)
+
+				success, message, err := CmsUpdateMcuConnectStatus(mcuId, base.MCU_DISCONNECTED, "", client.ConnTime, 0)
 				if err != nil {
 					glog.Errorf("onMessageClientConnection/disconnected/%d/CmsUpdateMcuConnectStatus err: %v", mcuId, err)
 					return
 				} else {
 					if success {
+						ConvertJsonToSenMLVer2(mcuId,nil,base.STATE_DEVICE_DISCONNECTED,settings.GetTopicDeviceMainflux())
 						glog.Infof("PUT %d disconnected status to CMS ---> success", mcuId)
 					} else {
-						//glog.Infof("PUT %d disconnected status to CMS ---> failure (%s)", mcuId, message)
+						glog.Infof("PUT %d disconnected status to CMS ---> failure (%s)", mcuId, message)
 					}
 				}
 				//TOTO: save to redis

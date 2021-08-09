@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/silkeh/senml"
+
 	"strconv"
 	"strings"
 	"time"
@@ -75,7 +76,10 @@ func HandleNullObj(obj interface{}, op_code byte) interface{} {
 	}
 }
 func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte, topicLogMainflux string) (string, error) {
-	switch strconv.FormatInt(mcu_id, 10) {
+	id64:=int64(mcu_id)
+	mcuid:=strconv.FormatInt(id64,10)
+
+	switch mcuid {
 	case "88171961786836606":
 		{
 			thingID = "b1c0ccb9-3aba-47a3-8d67-54eb76dedad1"
@@ -99,6 +103,7 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte, topicLo
 		var generic *base.OPUGeneric = obj.(*base.OPUGeneric)
 		generic = HandleNullObj(generic, base.OPU_GENERIC).(*base.OPUGeneric)
 		volumn := float64(generic.Volume)
+		fmt.Println("QUANG VOLUME",volumn)
 		if generic.LocalIp == "" {
 			generic.LocalIp = "null"
 		}
@@ -312,7 +317,7 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte, topicLo
 		list := []senml.Measurement{}
 		for _, alarm := range alarms {
 			alarm = HandleNullObj(alarm, base.OPU_ALARM).(base.OPUAlarm)
-			list = append(list, senml.NewString("TTTM_"+thingID+"_OPU_ALARM_EventId:"+strconv.FormatInt(alarm.EventId, 10)+"_MCUID", strconv.FormatInt(mcu_id, 10), "MCUID", now, 0))
+			list = append(list, senml.NewString("TTTM_"+thingID+"_OPU_ALARM_EventId:"+strconv.FormatInt(alarm.EventId, 10)+"_MCUID", mcuid, "MCUID", now, 0))
 			list = append(list, senml.NewString("TTTM_"+thingID+"_OPU_ALARM_EventId:"+strconv.FormatInt(alarm.EventId, 10)+"_Name",
 				alarm.Name, "Name", now, 0))
 			list = append(list, senml.NewValue("TTTM_"+thingID+"_OPU_ALARM_EventId:"+strconv.FormatInt(alarm.EventId, 10)+"_State",
@@ -355,7 +360,7 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte, topicLo
 		fmt.Println(len(items))
 		list := []senml.Measurement{}
 		for _, item := range items {
-			list = append(list, senml.NewString("TTTM_"+thingID+"_OPU_MEDIA_RecId:"+strconv.FormatInt(item.RecId, 10)+"_MCUID", strconv.FormatInt(mcu_id, 10), "MCUID", now, 0))
+			list = append(list, senml.NewString("TTTM_"+thingID+"_OPU_MEDIA_RecId:"+strconv.FormatInt(item.RecId, 10)+"_MCUID", mcuid, "MCUID", now, 0))
 			list = append(list, senml.NewValue("TTTM_"+thingID+"_OPU_MEDIA_RecId:"+strconv.FormatInt(item.RecId, 10)+
 				"_McuId", float64(item.McuId), "McuId", now, 0))
 			list = append(list, senml.NewValue("TTTM_"+thingID+"_OPU_MEDIA_RecId:"+strconv.FormatInt(item.RecId, 10)+
@@ -404,14 +409,16 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte, topicLo
 		return string(data), nil
 	//lấy thông tin nhiệt độ bên trong hộp thiết bị
 	case base.OPU_LOG:
-		fmt.Println("ConvertJsonToSenML_InSensor")
+		fmt.Println("ConvertJsonLogToSenML_InSensor")
 		var logs []base.OPULog = obj.([]base.OPULog)
-		fmt.Println(len(logs))
+
 		list := []senml.Measurement{}
 		for _, log := range logs {
-			list = append(list, senml.NewString("TTTM_"+thingID+"_OPU_LOG_LogID:"+strconv.FormatInt(log.LogId, 10)+"_MCUID", strconv.FormatInt(mcu_id, 10), "MCUID", now, 0))
-			list = append(list, senml.NewValue("TTTM_"+thingID+"_OPU_LOG_LogID:"+strconv.FormatInt(log.LogId, 10)+
-				"_CreatedTime", float64(log.CreatedTime), "CreatedTime", now, 0))
+
+			tm := time.Unix(log.CreatedTime, 0)
+			list = append(list, senml.NewString("TTTM_"+thingID+"_OPU_LOG_LogID:"+strconv.FormatInt(log.LogId, 10)+"_MCUID", mcuid, "MCUID", now, 0))
+			list = append(list, senml.NewString("TTTM_"+thingID+"_OPU_LOG_LogID:"+strconv.FormatInt(log.LogId, 10)+
+				"_CreatedTime", tm.String(), "CreatedTime", now, 0))
 			list = append(list, senml.NewValue("TTTM_"+thingID+"_OPU_LOG_LogID:"+strconv.FormatInt(log.LogId, 10)+
 				"_MediaId", float64(log.MediaId), "MediaId", now, 0))
 			list = append(list, senml.NewValue("TTTM_"+thingID+"_OPU_LOG_LogID:"+strconv.FormatInt(log.LogId, 10)+
@@ -432,6 +439,42 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte, topicLo
 		}
 		fmt.Printf("%s\n", data)
 		errPublish := publishMessageSenML(topicLogMainflux, 0, false, string(data))
+		fmt.Println("ConvertJsonLogToSenML_InSensor")
+		if errPublish != nil {
+			return "", errPublish
+		}
+		return string(data), nil
+	case base.STATE_DEVICE_CONNECTED:
+		list := []senml.Measurement{
+			senml.NewString("TTTM_"+thingID+"_StateDevice_MCUID",strconv.FormatInt(mcu_id,64),"MCUID",now,0),
+			senml.NewValue("TTTM_"+thingID+"_StateDevice",float64(1),"StateDevice",now,0),
+		}
+		data, err := senml.EncodeJSON(list)
+		if err != nil {
+			fmt.Print("Error encoding to JSON:", err)
+			return "", err
+		}
+		fmt.Printf("%s\n", data)
+		errPublish := publishMessageSenML(topicLogMainflux, 0, false, string(data))
+		fmt.Println("ConvertJsonLogToSenML_InSensor")
+		if errPublish != nil {
+			return "", errPublish
+		}
+		return string(data), nil
+	case base.STATE_DEVICE_DISCONNECTED:
+
+		list := []senml.Measurement{
+			senml.NewString("TTTM_"+thingID+"_StateDevice_MCUID",mcuid,"MCUID",now,0),
+			senml.NewValue("TTTM_"+thingID+"_StateDevice",float64(0),"StateDevice",now,0),
+		}
+		data, err := senml.EncodeJSON(list)
+		if err != nil {
+			fmt.Print("Error encoding to JSON:", err)
+			return "", err
+		}
+		fmt.Printf("%s\n", data)
+		errPublish := publishMessageSenML(topicLogMainflux, 0, false, string(data))
+		fmt.Println("ConvertJsonLogToSenML_InSensor")
 		if errPublish != nil {
 			return "", errPublish
 		}

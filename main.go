@@ -6,10 +6,10 @@ import (
 	"os"
 	"time"
 
-	"tttm_cms_api/services"
+	"github.com/golang/glog"
 	"tttm_cms_api/lp-libs/redis"
 	"tttm_cms_api/lp-libs/settings"
-	"github.com/golang/glog"
+	"tttm_cms_api/services"
 )
 
 const version string = "dev_1_1"
@@ -52,7 +52,7 @@ func main() {
 		glog.Info("Connecting to MQTT broker... ")
 		err := services.ConnectMqtt()
 		if err != nil {
-			glog.Info("Failed, exit")
+			glog.Info("Failed connect to MQTT Broker, exit")
 			os.Exit(1)
 		} else {
 			glog.Info("OK")
