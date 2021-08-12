@@ -90,9 +90,34 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte, topicLo
 			thingID = "337be79d-62af-4708-b6d0-ecd61b517aaf"
 			break
 		}
+	case "88171961787146387":
+		{
+			thingID = "da268f01-51af-4b96-9aa7-1384af9d6c25"
+			break
+		}
+	case "88171961786838220":
+		{
+			thingID = "44c7b877-42ed-4b41-a46b-e7de2bed1900"
+			break
+		}
+	case "88171961785785564":
+		{
+			thingID = "f8eecfff-99ed-413c-8945-a32b46de4923"
+			break
+		}
+	case "88171961786836690":
+		{
+			thingID = "edab1bd0-600b-4483-a165-3dde3f172159"
+			break
+		}
 	case "8817196178683660688":
 		{
 			thingID = "9d0dbcff-6bc0-4219-95e0-0c4eaef4c761"
+			break
+		}
+	case "88171961786705434":
+		{
+			thingID = "eedcba6b-cb9a-4884-a1b6-90030cc7ab9d"
 			break
 		}
 	}
