@@ -587,13 +587,16 @@ func CheckMqttStatusClients() {
 	}
 
 	for _, id := range ids {
+
 		//fmt.Println(id)
 		mcuId, err := strconv.ParseInt(id, 10, 64)
 		//fmt.Println("MCUID: ",mcuId)
 		if err != nil {
 			continue
 		}
-
+		if id == "88171961786838220"{
+			fmt.Println("QUANG: ",mcuId)
+		}
 		path := fmt.Sprintf("api/v1/session/show/?--client_id=%d", id)
 		conns, err := getMqttStatusClients(path)
 		if err != nil {
@@ -631,9 +634,11 @@ func CheckMqttStatusClients() {
 							continue
 						} else {
 							if success {
+								fmt.Println("CONNECT: ",strconv.FormatInt(mcuId,10))
 								ConvertJsonToSenMLVer2(mcuId,nil,base.STATE_DEVICE_CONNECTED,settings.GetTopicDeviceMainflux())
 								glog.Infof("PUT %d connected status to CMS ---> success", mcuId)
 							} else {
+								ConvertJsonToSenMLVer2(mcuId,nil,base.STATE_DEVICE_CONNECTED,settings.GetTopicDeviceMainflux())
 								glog.Infof("PUT %d connected status to CMS ---> failure (%s)", mcuId, message)
 							}
 						}
@@ -650,6 +655,7 @@ func CheckMqttStatusClients() {
 		}
 
 		if !isOnl {
+
 			//TODO: call api update connection status
 			client := redis.GetMcuInfo(mcuId)
 			if client != nil {
@@ -660,9 +666,11 @@ func CheckMqttStatusClients() {
 					return
 				} else {
 					if success {
+
 						ConvertJsonToSenMLVer2(mcuId,nil,base.STATE_DEVICE_DISCONNECTED,settings.GetTopicDeviceMainflux())
 						glog.Infof("PUT %d disconnected status to CMS ---> success", mcuId)
 					} else {
+						ConvertJsonToSenMLVer2(mcuId,nil,base.STATE_DEVICE_DISCONNECTED,settings.GetTopicDeviceMainflux())
 						glog.Infof("PUT %d disconnected status to CMS ---> failure (%s)", mcuId, message)
 					}
 				}
