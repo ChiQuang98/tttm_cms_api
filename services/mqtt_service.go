@@ -580,6 +580,11 @@ func getBrokerNodesV2(path string) ([]models.NodeEmqttd, error) {
 }
 
 func CheckMqttStatusClients() {
+	defer func() {
+		if err := recover(); err != nil {
+			glog.Error("RECOVER/CheckMqttStatusClients err: ", err)
+		}
+	}()
 	ids, err := redis.GetAllMcuIds()
 	if err != nil {
 		glog.Error("checkMqttStatusClients/redis.GetAllMcuIds err: ", err)
@@ -589,13 +594,14 @@ func CheckMqttStatusClients() {
 	for _, id := range ids {
 
 		//fmt.Println(id)
+
 		mcuId, err := strconv.ParseInt(id, 10, 64)
+		if mcuId<100000{
+			continue
+		}
 		//fmt.Println("MCUID: ",mcuId)
 		if err != nil {
 			continue
-		}
-		if id == "88171961786838220"{
-			fmt.Println("QUANG: ",mcuId)
 		}
 		path := fmt.Sprintf("api/v1/session/show/?--client_id=%d", id)
 		conns, err := getMqttStatusClients(path)

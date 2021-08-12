@@ -220,7 +220,6 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte, topicLo
 	case base.OPU_SENSOR:
 		fmt.Println("ConvertJsonToSenML_InSensor")
 		var sensors []base.OPUSensor = obj.([]base.OPUSensor)
-		fmt.Println(len(sensors))
 		list := []senml.Measurement{}
 		for _, sensor := range sensors {
 			sensor = HandleNullObj(sensor, base.OPU_SENSOR).(base.OPUSensor)
