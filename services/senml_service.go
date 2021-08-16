@@ -470,7 +470,7 @@ func ConvertJsonToSenMLVer2(mcu_id int64, obj interface{}, op_code byte, topicLo
 		return string(data), nil
 	case base.STATE_DEVICE_CONNECTED:
 		list := []senml.Measurement{
-			senml.NewString("TTTM_"+thingID+"_StateDevice_MCUID",strconv.FormatInt(mcu_id,64),"MCUID",now,0),
+			senml.NewString("TTTM_"+thingID+"_StateDevice_MCUID",mcuid,"MCUID",now,0),
 			senml.NewValue("TTTM_"+thingID+"_StateDevice",float64(1),"StateDevice",now,0),
 		}
 		data, err := senml.EncodeJSON(list)

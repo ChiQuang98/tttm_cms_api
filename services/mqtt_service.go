@@ -603,7 +603,7 @@ func CheckMqttStatusClients() {
 		if err != nil {
 			continue
 		}
-		path := fmt.Sprintf("api/v1/session/show/?--client_id=%d", id)
+		path := fmt.Sprintf("api/v1/session/show/?--client_id=%s", id)
 		conns, err := getMqttStatusClients(path)
 		if err != nil {
 			glog.Error("checkMqttStatusClients/getMqttStatusClients err: ", err)
@@ -611,50 +611,71 @@ func CheckMqttStatusClients() {
 		}
 
 		isOnl := false
-		if len(conns) != 0 {
+		if len(conns) > 0 {
 			for _, conn := range conns {
-				if id == "88171961786836606" && conn.ClientId == "88171961786836606" && conn.IsOnline == false {
-					fmt.Println("===sonnh===id:"+id+" conn.ClientId"+conn.ClientId+" conn.IsOnline:"+strconv.FormatBool(conn.IsOnline))
-					glog.Error("===sonnh===id:"+id+" conn.ClientId"+conn.ClientId+" conn.IsOnline:"+strconv.FormatBool(conn.IsOnline))
-				}
+				//if id == "88171961786836606" && conn.ClientId == "88171961786836606" && conn.IsOnline == false {
+				//	fmt.Println("===sonnh===id:"+id+" conn.ClientId"+conn.ClientId+" conn.IsOnline:"+strconv.FormatBool(conn.IsOnline))
+				//	glog.Error("===sonnh===id:"+id+" conn.ClientId"+conn.ClientId+" conn.IsOnline:"+strconv.FormatBool(conn.IsOnline))
+				//}
 
 				if id == conn.ClientId && conn.IsOnline == true &&  len(conn.PeerHost) > 0 {
 					isOnl = true
 					//TODO: call api update connection status
 					//layout := "2006-01-02 15:04:05"
 					//t, err := time.Parse(layout, conn.ConnectedAt)
-					clientts, err := getMQTTClientts("api/v1/session/show?--session_started_at&--queue_started_at&--client_id=" + conn.ClientId)
+					var t int64 = time.Now().Unix()
+					//clientts, err := getMQTTClientts("api/v1/session/show?--session_started_at&--queue_started_at&--client_id=" + conn.ClientId)
 					if err != nil {
 						glog.Error("Fail get status client -- CheckMqttStatusClients/ getMQTTClientts")
 						return
 					}
-					if len(clientts) > 0 {
-						var t int64 = clientts[0].Session_started_at / 1000
-						//if err != nil {
-						//	continue
-						//}
-
-						success, message, err := CmsUpdateMcuConnectStatus(mcuId, base.MCU_CONNECTED, conn.PeerHost, t, 0)
-						if err != nil {
-							glog.Errorf("checkMqttStatusClients/connected/%d/CmsUpdateMcuConnectStatus err: %v", mcuId, err)
-							continue
+					success, message, err := CmsUpdateMcuConnectStatus(mcuId, base.MCU_CONNECTED, conn.PeerHost, t, 0)
+					if err != nil {
+						glog.Errorf("checkMqttStatusClients/connected/%d/CmsUpdateMcuConnectStatus err: %v", mcuId, err)
+						continue
+					} else {
+						if success {
+							fmt.Println("CONNECT: ",strconv.FormatInt(mcuId,10))
+							ConvertJsonToSenMLVer2(mcuId,nil,base.STATE_DEVICE_CONNECTED,settings.GetTopicDeviceMainflux())
+							glog.Infof("PUT %d connected status to CMS ---> success", mcuId)
 						} else {
-							if success {
-								fmt.Println("CONNECT: ",strconv.FormatInt(mcuId,10))
-								ConvertJsonToSenMLVer2(mcuId,nil,base.STATE_DEVICE_CONNECTED,settings.GetTopicDeviceMainflux())
-								glog.Infof("PUT %d connected status to CMS ---> success", mcuId)
-							} else {
-								ConvertJsonToSenMLVer2(mcuId,nil,base.STATE_DEVICE_CONNECTED,settings.GetTopicDeviceMainflux())
-								glog.Infof("PUT %d connected status to CMS ---> failure (%s)", mcuId, message)
-							}
-						}
-						//TOTO: save to redis
-						err = redis.UpdateMcuConnectionStatus(mcuId, base.MCU_CONNECTED, t, conn.PeerHost)
-						if err != nil {
-							glog.Errorf("checkMqttStatusClients/%d/redis.UpdateConnectionStatus err: %v", mcuId, err)
-							continue
+							ConvertJsonToSenMLVer2(mcuId,nil,base.STATE_DEVICE_CONNECTED,settings.GetTopicDeviceMainflux())
+							glog.Infof("PUT %d connected status to CMS ---> failure (%s)", mcuId, message)
 						}
 					}
+					//TOTO: save to redis
+					err = redis.UpdateMcuConnectionStatus(mcuId, base.MCU_CONNECTED, t, conn.PeerHost)
+					if err != nil {
+						glog.Errorf("checkMqttStatusClients/%d/redis.UpdateConnectionStatus err: %v", mcuId, err)
+						continue
+					}
+					//if len(clientts) > 0 {
+					//	var t int64 = clientts[0].Session_started_at / 1000
+					//	//if err != nil {
+					//	//	continue
+					//	//}
+					//
+					//	success, message, err := CmsUpdateMcuConnectStatus(mcuId, base.MCU_CONNECTED, conn.PeerHost, t, 0)
+					//	if err != nil {
+					//		glog.Errorf("checkMqttStatusClients/connected/%d/CmsUpdateMcuConnectStatus err: %v", mcuId, err)
+					//		continue
+					//	} else {
+					//		if success {
+					//			fmt.Println("CONNECT: ",strconv.FormatInt(mcuId,10))
+					//			ConvertJsonToSenMLVer2(mcuId,nil,base.STATE_DEVICE_CONNECTED,settings.GetTopicDeviceMainflux())
+					//			glog.Infof("PUT %d connected status to CMS ---> success", mcuId)
+					//		} else {
+					//			ConvertJsonToSenMLVer2(mcuId,nil,base.STATE_DEVICE_CONNECTED,settings.GetTopicDeviceMainflux())
+					//			glog.Infof("PUT %d connected status to CMS ---> failure (%s)", mcuId, message)
+					//		}
+					//	}
+					//	//TOTO: save to redis
+					//	err = redis.UpdateMcuConnectionStatus(mcuId, base.MCU_CONNECTED, t, conn.PeerHost)
+					//	if err != nil {
+					//		glog.Errorf("checkMqttStatusClients/%d/redis.UpdateConnectionStatus err: %v", mcuId, err)
+					//		continue
+					//	}
+					//}
 
 				}
 			}

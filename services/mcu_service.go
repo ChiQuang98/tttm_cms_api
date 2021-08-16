@@ -7,11 +7,11 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/golang/glog"
 	"tttm_cms_api/lp-libs/base"
 	"tttm_cms_api/lp-libs/models"
 	"tttm_cms_api/lp-libs/redis"
 	"tttm_cms_api/lp-libs/settings"
-	"github.com/golang/glog"
 )
 
 var cmsInfo *settings.CmsInfo = settings.GetCmsInfo()
